@@ -195,7 +195,7 @@
             endShape();
         }
 
-        // 谢尔宾斯基三角形
+        // 谢尔宾斯基三角
         function drawSierpinski() {
             translate(width / 2, height / 2 + 100);
             let size = 400;
