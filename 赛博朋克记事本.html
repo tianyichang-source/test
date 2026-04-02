@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>记事本 - Cyberpunk Edition</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Courier New', monospace;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+      padding: 20px;
+      overflow-x: hidden;
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 20% 80%, rgba(0, 255, 255, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 0, 255, 0.1) 0%, transparent 50%), radial-gradient(circle at 40% 40%, rgba(0, 255, 128, 0.05) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: rgba(10, 10, 10, 0.9);
+      border-radius: 5px;
+      padding: 40px;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.3), 0 0 40px rgba(0, 255, 255, 0.1), inset 0 0 20px rgba(0, 255, 255, 0.05);
+      border: 2px solid rgba(0, 255, 255, 0.3);
+      position: relative;
+      z-index: 1;
+    }
+    .container::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(45deg, #00ffff, #ff00ff, #00ff80, #00ffff);
+      background-size: 400% 400%;
+      z-index: -1;
+      border-radius: 7px;
+      animation: gradientBorder 3s ease infinite;
+      opacity: 0.3;
+    }
+    @keyframes gradientBorder {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    h1 {
+      color: #00ffff;
+      text-align: center;
+      font-size: 2.5em;
+      margin-bottom: 40px;
+      text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      animation: neonPulse 2s ease-in-out infinite alternate;
+    }
+    @keyframes neonPulse {
+      from { text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff; }
+      to { text-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff, 0 0 60px #00ffff; }
+    }
+    .add-note {
+      margin-bottom: 30px;
+      padding: 25px;
+      background: rgba(0, 255, 255, 0.05);
+      border-radius: 5px;
+      border: 1px solid rgba(0, 255, 255, 0.3);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .add-note::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+      transition: left 0.5s ease;
+    }
+    .add-note:hover::before {
+      left: 100%;
+    }
+    .add-note:hover {
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.3), inset 0 0 20px rgba(0, 255, 255, 0.1);
+      border-color: rgba(0, 255, 255, 0.6);
+    }
+    h2 {
+      color: #ff00ff;
+      margin-bottom: 20px;
+      font-size: 1.3em;
+      text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 15px;
+      margin-bottom: 15px;
+      border: 2px solid rgba(0, 255, 255, 0.3);
+      border-radius: 5px;
+      background: rgba(0, 0, 0, 0.8);
+      color: #00ffff;
+      font-size: 16px;
+      font-family: 'Courier New', monospace;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
+    }
+    input[type="text"]:focus, textarea:focus {
+      outline: none;
+      border-color: #00ffff;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.5), inset 0 0 10px rgba(0, 255, 255, 0.1);
+    }
+    input[type="text"]::placeholder, textarea::placeholder {
+      color: rgba(0, 255, 255, 0.5);
+    }
+    textarea {
+      height: 120px;
+      resize: vertical;
+    }
+    button {
+      padding: 12px 30px;
+      background: linear-gradient(135deg, #ff00ff 0%, #00ffff 100%);
+      color: #000;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: 'Courier New', monospace;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 20px rgba(255, 0, 255, 0.5), 0 0 40px rgba(0, 255, 255, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      position: relative;
+      overflow: hidden;
+    }
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.5s ease;
+    }
+    button:hover::before {
+      left: 100%;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(255, 0, 255, 0.7), 0 0 60px rgba(0, 255, 255, 0.5);
+    }
+    button:active {
+      transform: translateY(0);
+    }
+    .note-list {
+      margin-top: 30px;
+    }
+    .note-item {
+      padding: 25px;
+      margin-bottom: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 5px;
+      border: 1px solid rgba(0, 255, 255, 0.3);
+      transition: all 0.3s ease;
+      animation: glitchIn 0.5s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    @keyframes glitchIn {
+      0% { opacity: 0; transform: translateX(-20px); filter: hue-rotate(90deg); }
+      50% { transform: translateX(5px); }
+      100% { opacity: 1; transform: translateX(0); filter: hue-rotate(0deg); }
+    }
+    .note-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(180deg, #00ffff, #ff00ff, #00ff80);
+      opacity: 0.5;
+    }
+    .note-item:hover {
+      transform: translateX(10px);
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.3), inset 0 0 20px rgba(0, 255, 255, 0.05);
+      border-color: rgba(0, 255, 255, 0.6);
+    }
+    .note-title {
+      font-weight: 700;
+      font-size: 1.4em;
+      margin-bottom: 10px;
+      color: #00ffff;
+      text-shadow: 0 0 10px #00ffff;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .note-content {
+      color: #00ff80;
+      margin-bottom: 15px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      text-shadow: 0 0 5px rgba(0, 255, 128, 0.5);
+    }
+    .note-meta {
+      font-size: 0.85em;
+      color: #ff00ff;
+      margin-bottom: 15px;
+      font-style: italic;
+      text-shadow: 0 0 5px #ff00ff;
+    }
+    .note-actions {
+      display: flex;
+      gap: 15px;
+    }
+    .btn-edit {
+      background: linear-gradient(135deg, #00ffff 0%, #00ff80 100%);
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.5), 0 0 40px rgba(0, 255, 128, 0.3);
+    }
+    .btn-edit:hover {
+      box-shadow: 0 0 30px rgba(0, 255, 255, 0.7), 0 0 60px rgba(0, 255, 128, 0.5);
+    }
+    .btn-delete {
+      background: linear-gradient(135deg, #ff00ff 0%, #ff0080 100%);
+      box-shadow: 0 0 20px rgba(255, 0, 255, 0.5), 0 0 40px rgba(255, 0, 128, 0.3);
+    }
+    .btn-delete:hover {
+      box-shadow: 0 0 30px rgba(255, 0, 255, 0.7), 0 0 60px rgba(255, 0, 128, 0.5);
+    }
+    .edit-form {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(0, 255, 255, 0.3);
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    #notes-container p {
+      color: #00ffff;
+      text-align: center;
+      font-size: 1.2em;
+      padding: 40px;
+      font-style: italic;
+      text-shadow: 0 0 10px #00ffff;
+    }
+    ::-webkit-scrollbar {
+      width: 12px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.8);
+      border-left: 1px solid rgba(0, 255, 255, 0.3);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #00ffff, #ff00ff);
+      border-radius: 6px;
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #ff00ff, #00ffff);
+      box-shadow: 0 0 20px rgba(255, 0, 255, 0.7);
+    }
+    .scanline {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1) 1px, transparent 1px, transparent 2px);
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0.3;
+    }
+  </style>
+</head>
+<body>
+  <div class="scanline"></div>
+  <div class="container">
+    <h1>我的记事本</h1>
+    <div class="add-note">
+      <h2>添加新笔记</h2>
+      <input type="text" id="new-title" placeholder="标题" required>
+      <textarea id="new-content" placeholder="内容"></textarea>
+      <button onclick="addNote()">保存</button>
+    </div>
+    <div class="note-list">
+      <h2>笔记列表</h2>
+      <div id="notes-container"></div>
+    </div>
+  </div>
+  <script>
+    function loadNotes() {
+      const notes = JSON.parse(localStorage.getItem('notes')) || [];
+      const container = document.getElementById('notes-container');
+      container.innerHTML = '';
+      if (notes.length === 0) {
+        container.innerHTML = '<p>还没有笔记，添加一个新笔记吧！</p>';
+        return;
+      }
+      notes.forEach((note, index) => {
+        const noteElement = document.createElement('div');
+        noteElement.className = 'note-item';
+        noteElement.innerHTML = `<div class="note-title">${note.title}</div><div class="note-content">${note.content}</div><div class="note-meta">创建于: ${new Date(note.createdAt).toLocaleString()}${note.updatedAt !== note.createdAt ? `| 更新于: ${new Date(note.updatedAt).toLocaleString()}` : ''}</div><div class="note-actions"><button class="btn-edit" onclick="editNote(${index})">编辑</button><button class="btn-delete" onclick="deleteNote(${index})">删除</button></div><div class="edit-form" id="edit-form-${index}" style="display: none;"><input type="text" id="edit-title-${index}" value="${note.title}"><textarea id="edit-content-${index}">${note.content}</textarea><button onclick="saveEdit(${index})">保存修改</button><button onclick="cancelEdit(${index})">取消</button></div>`;
+        container.appendChild(noteElement);
+      });
+    }
+    function addNote() {
+      const title = document.getElementById('new-title').value;
+      const content = document.getElementById('new-content').value;
+      if (!title) {
+        alert('请输入标题');
+        return;
+      }
+      const notes = JSON.parse(localStorage.getItem('notes')) || [];
+      const newNote = { title, content, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+      notes.unshift(newNote);
+      localStorage.setItem('notes', JSON.stringify(notes));
+      document.getElementById('new-title').value = '';
+      document.getElementById('new-content').value = '';
+      loadNotes();
+    }
+    function editNote(index) {
+      document.getElementById(`edit-form-${index}`).style.display = 'block';
+    }
+    function saveEdit(index) {
+      const notes = JSON.parse(localStorage.getItem('notes')) || [];
+      const title = document.getElementById(`edit-title-${index}`).value;
+      const content = document.getElementById(`edit-content-${index}`).value;
+      if (!title) {
+        alert('请输入标题');
+        return;
+      }
+      notes[index].title = title;
+      notes[index].content = content;
+      notes[index].updatedAt = new Date().toISOString();
+      localStorage.setItem('notes', JSON.stringify(notes));
+      loadNotes();
+    }
+    function cancelEdit(index) {
+      document.getElementById(`edit-form-${index}`).style.display = 'none';
+    }
+    function deleteNote(index) {
+      if (confirm('确定要删除吗？')) {
+        const notes = JSON.parse(localStorage.getItem('notes')) || [];
+        notes.splice(index, 1);
+        localStorage.setItem('notes', JSON.stringify(notes));
+        loadNotes();
+      }
+    }
+    window.onload = loadNotes;
+  </script>
+</body>
+</html>
