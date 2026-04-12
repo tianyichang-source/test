@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -74,7 +75,8 @@
       margin-bottom: 20px;
     }
 
-    input[type="text"], textarea {
+    input[type="text"],
+    textarea {
       width: 100%;
       padding: 14px 16px;
       margin-bottom: 16px;
@@ -89,13 +91,15 @@
       appearance: none;
     }
 
-    input[type="text"]:focus, textarea:focus {
+    input[type="text"]:focus,
+    textarea:focus {
       outline: none;
       border-color: #0071e3;
       box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1);
     }
 
-    input[type="text"]::placeholder, textarea::placeholder {
+    input[type="text"]::placeholder,
+    textarea::placeholder {
       color: #86868b;
     }
 
@@ -222,6 +226,7 @@
         opacity: 0;
         transform: translateY(-10px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
@@ -286,21 +291,22 @@
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <div class="header">
       <h1>记事本</h1>
       <p class="subtitle">简单、优雅的笔记管理体验</p>
     </div>
-    
+
     <div class="content">
       <div class="add-note">
-        <h2>新建笔记</h2>
+        <h2>build笔记</h2>
         <input type="text" id="new-title" placeholder="输入标题">
         <textarea id="new-content" placeholder="输入内容"></textarea>
         <button onclick="addNote()">创建笔记</button>
       </div>
-      
+
       <div class="note-list">
         <h2>我的笔记</h2>
         <div id="notes-container"></div>
@@ -313,7 +319,7 @@
       const notes = JSON.parse(localStorage.getItem('notes')) || [];
       const container = document.getElementById('notes-container');
       container.innerHTML = '';
-      
+
       if (notes.length === 0) {
         container.innerHTML = `
           <div class="empty-state">
@@ -323,7 +329,7 @@
         `;
         return;
       }
-      
+
       notes.forEach((note, index) => {
         const noteElement = document.createElement('div');
         noteElement.className = 'note-item';
@@ -348,33 +354,33 @@
         container.appendChild(noteElement);
       });
     }
-    
+
     function formatDate(dateString) {
       const date = new Date(dateString);
       const now = new Date();
       const diff = now - date;
-      
+
       if (diff < 60000) return '刚刚';
       if (diff < 3600000) return `${Math.floor(diff / 60000)} 分钟前`;
       if (diff < 86400000) return `${Math.floor(diff / 3600000)} 小时前`;
       if (diff < 604800000) return `${Math.floor(diff / 86400000)} 天前`;
-      
+
       return date.toLocaleDateString('zh-CN', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
       });
     }
-    
+
     function addNote() {
       const title = document.getElementById('new-title').value.trim();
       const content = document.getElementById('new-content').value.trim();
-      
+
       if (!title) {
         alert('请输入标题');
         return;
       }
-      
+
       const notes = JSON.parse(localStorage.getItem('notes')) || [];
       const newNote = {
         title,
@@ -382,44 +388,44 @@
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
-      
+
       notes.unshift(newNote);
       localStorage.setItem('notes', JSON.stringify(notes));
-      
+
       document.getElementById('new-title').value = '';
       document.getElementById('new-content').value = '';
-      
+
       loadNotes();
     }
-    
+
     function editNote(index) {
       const editForm = document.getElementById(`edit-form-${index}`);
       editForm.classList.add('active');
     }
-    
+
     function saveEdit(index) {
       const notes = JSON.parse(localStorage.getItem('notes')) || [];
       const title = document.getElementById(`edit-title-${index}`).value.trim();
       const content = document.getElementById(`edit-content-${index}`).value.trim();
-      
+
       if (!title) {
         alert('请输入标题');
         return;
       }
-      
+
       notes[index].title = title;
       notes[index].content = content;
       notes[index].updatedAt = new Date().toISOString();
-      
+
       localStorage.setItem('notes', JSON.stringify(notes));
       loadNotes();
     }
-    
+
     function cancelEdit(index) {
       const editForm = document.getElementById(`edit-form-${index}`);
       editForm.classList.remove('active');
     }
-    
+
     function deleteNote(index) {
       if (confirm('确定要删除这条笔记吗？')) {
         const notes = JSON.parse(localStorage.getItem('notes')) || [];
@@ -428,8 +434,9 @@
         loadNotes();
       }
     }
-    
+
     window.onload = loadNotes;
   </script>
 </body>
+
 </html>
