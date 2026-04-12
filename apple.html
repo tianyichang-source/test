@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>记事本</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: #f5f5f7;
+      min-height: 100vh;
+      padding: 40px 20px;
+      color: #1d1d1f;
+      line-height: 1.47059;
+      font-weight: 400;
+      letter-spacing: -0.022em;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+    }
+
+    .header {
+      padding: 60px 40px 40px;
+      text-align: center;
+      background: linear-gradient(180deg, #fafafa 0%, #ffffff 100%);
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    h1 {
+      font-size: 48px;
+      font-weight: 600;
+      letter-spacing: -0.003em;
+      color: #1d1d1f;
+      margin-bottom: 12px;
+    }
+
+    .subtitle {
+      font-size: 21px;
+      font-weight: 400;
+      letter-spacing: 0.011em;
+      color: #86868b;
+      line-height: 1.381;
+    }
+
+    .content {
+      padding: 40px;
+    }
+
+    .add-note {
+      background: #fafafa;
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 40px;
+      border: 1px solid #e5e5e5;
+    }
+
+    .add-note h2 {
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: 0.009em;
+      color: #1d1d1f;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      border: 1px solid #d2d2d7;
+      border-radius: 8px;
+      font-size: 17px;
+      font-family: inherit;
+      background: white;
+      color: #1d1d1f;
+      transition: all 0.2s ease;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    input[type="text"]:focus, textarea:focus {
+      outline: none;
+      border-color: #0071e3;
+      box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1);
+    }
+
+    input[type="text"]::placeholder, textarea::placeholder {
+      color: #86868b;
+    }
+
+    textarea {
+      height: 120px;
+      resize: vertical;
+      line-height: 1.47059;
+    }
+
+    button {
+      padding: 12px 24px;
+      background: #0071e3;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 17px;
+      font-weight: 400;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    button:hover {
+      background: #0077ed;
+    }
+
+    button:active {
+      background: #0062cc;
+    }
+
+    .note-list h2 {
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: 0.007em;
+      color: #1d1d1f;
+      margin-bottom: 24px;
+    }
+
+    .note-item {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 16px;
+      border: 1px solid #e5e5e5;
+      transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+
+    .note-item:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      transform: translateY(-2px);
+    }
+
+    .note-title {
+      font-size: 21px;
+      font-weight: 600;
+      letter-spacing: 0.011em;
+      color: #1d1d1f;
+      margin-bottom: 8px;
+    }
+
+    .note-content {
+      font-size: 17px;
+      line-height: 1.47059;
+      color: #424245;
+      margin-bottom: 16px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .note-meta {
+      font-size: 14px;
+      color: #86868b;
+      margin-bottom: 16px;
+      font-weight: 400;
+    }
+
+    .note-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn-edit {
+      background: #f5f5f7;
+      color: #1d1d1f;
+    }
+
+    .btn-edit:hover {
+      background: #e8e8ed;
+    }
+
+    .btn-edit:active {
+      background: #d2d2d7;
+    }
+
+    .btn-delete {
+      background: #ff3b30;
+      color: white;
+    }
+
+    .btn-delete:hover {
+      background: #ff453a;
+    }
+
+    .btn-delete:active {
+      background: #d70015;
+    }
+
+    .edit-form {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #e5e5e5;
+      display: none;
+    }
+
+    .edit-form.active {
+      display: block;
+      animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    #notes-container p {
+      text-align: center;
+      font-size: 19px;
+      color: #86868b;
+      padding: 60px 20px;
+      font-weight: 400;
+      letter-spacing: -0.003em;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+    }
+
+    .empty-state-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+      opacity: 0.3;
+    }
+
+    .empty-state-text {
+      font-size: 21px;
+      color: #86868b;
+      font-weight: 400;
+      letter-spacing: -0.003em;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 20px 10px;
+      }
+
+      .header {
+        padding: 40px 20px 30px;
+      }
+
+      h1 {
+        font-size: 36px;
+      }
+
+      .subtitle {
+        font-size: 19px;
+      }
+
+      .content {
+        padding: 20px;
+      }
+
+      .add-note {
+        padding: 20px;
+      }
+
+      .note-item {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>记事本</h1>
+      <p class="subtitle">简单、优雅的笔记管理体验</p>
+    </div>
+    
+    <div class="content">
+      <div class="add-note">
+        <h2>新建笔记</h2>
+        <input type="text" id="new-title" placeholder="输入标题">
+        <textarea id="new-content" placeholder="输入内容"></textarea>
+        <button onclick="addNote()">创建笔记</button>
+      </div>
+      
+      <div class="note-list">
+        <h2>我的笔记</h2>
+        <div id="notes-container"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function loadNotes() {
+      const notes = JSON.parse(localStorage.getItem('notes')) || [];
+      const container = document.getElementById('notes-container');
+      container.innerHTML = '';
+      
+      if (notes.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📝</div>
+            <p class="empty-state-text">还没有笔记，创建第一条笔记吧</p>
+          </div>
+        `;
+        return;
+      }
+      
+      notes.forEach((note, index) => {
+        const noteElement = document.createElement('div');
+        noteElement.className = 'note-item';
+        noteElement.innerHTML = `
+          <div class="note-title">${note.title}</div>
+          <div class="note-content">${note.content}</div>
+          <div class="note-meta">
+            创建于 ${formatDate(note.createdAt)}
+            ${note.updatedAt !== note.createdAt ? `· 更新于 ${formatDate(note.updatedAt)}` : ''}
+          </div>
+          <div class="note-actions">
+            <button class="btn-edit" onclick="editNote(${index})">编辑</button>
+            <button class="btn-delete" onclick="deleteNote(${index})">删除</button>
+          </div>
+          <div class="edit-form" id="edit-form-${index}">
+            <input type="text" id="edit-title-${index}" value="${note.title}" placeholder="标题">
+            <textarea id="edit-content-${index}" placeholder="内容">${note.content}</textarea>
+            <button onclick="saveEdit(${index})">保存修改</button>
+            <button class="btn-edit" onclick="cancelEdit(${index})">取消</button>
+          </div>
+        `;
+        container.appendChild(noteElement);
+      });
+    }
+    
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diff = now - date;
+      
+      if (diff < 60000) return '刚刚';
+      if (diff < 3600000) return `${Math.floor(diff / 60000)} 分钟前`;
+      if (diff < 86400000) return `${Math.floor(diff / 3600000)} 小时前`;
+      if (diff < 604800000) return `${Math.floor(diff / 86400000)} 天前`;
+      
+      return date.toLocaleDateString('zh-CN', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    }
+    
+    function addNote() {
+      const title = document.getElementById('new-title').value.trim();
+      const content = document.getElementById('new-content').value.trim();
+      
+      if (!title) {
+        alert('请输入标题');
+        return;
+      }
+      
+      const notes = JSON.parse(localStorage.getItem('notes')) || [];
+      const newNote = {
+        title,
+        content,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      
+      notes.unshift(newNote);
+      localStorage.setItem('notes', JSON.stringify(notes));
+      
+      document.getElementById('new-title').value = '';
+      document.getElementById('new-content').value = '';
+      
+      loadNotes();
+    }
+    
+    function editNote(index) {
+      const editForm = document.getElementById(`edit-form-${index}`);
+      editForm.classList.add('active');
+    }
+    
+    function saveEdit(index) {
+      const notes = JSON.parse(localStorage.getItem('notes')) || [];
+      const title = document.getElementById(`edit-title-${index}`).value.trim();
+      const content = document.getElementById(`edit-content-${index}`).value.trim();
+      
+      if (!title) {
+        alert('请输入标题');
+        return;
+      }
+      
+      notes[index].title = title;
+      notes[index].content = content;
+      notes[index].updatedAt = new Date().toISOString();
+      
+      localStorage.setItem('notes', JSON.stringify(notes));
+      loadNotes();
+    }
+    
+    function cancelEdit(index) {
+      const editForm = document.getElementById(`edit-form-${index}`);
+      editForm.classList.remove('active');
+    }
+    
+    function deleteNote(index) {
+      if (confirm('确定要删除这条笔记吗？')) {
+        const notes = JSON.parse(localStorage.getItem('notes')) || [];
+        notes.splice(index, 1);
+        localStorage.setItem('notes', JSON.stringify(notes));
+        loadNotes();
+      }
+    }
+    
+    window.onload = loadNotes;
+  </script>
+</body>
+</html>
